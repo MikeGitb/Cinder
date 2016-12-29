@@ -32,6 +32,9 @@ struct TESStesselator;
 
 namespace cinder {
 
+template<int Dims>
+class TessWrapper;
+
 //! Converts an arbitrary Shape2d into a TriMesh2d
 class CI_API Triangulator {
   public:
@@ -39,6 +42,8 @@ class CI_API Triangulator {
 
 	//! Default constructor
 	Triangulator();
+	//! Default destructor
+	~Triangulator();
 	//! Constructs using a Path2d. \a approximationScale represents how smooth the tesselation is, with 1.0 corresponding to 1:1 with screen space
 	Triangulator( const Path2d &path, float approximationScale = 1.0f );
 	//! Constructs using a Shape2d. \a approximationScale represents how smooth the tesselation is, with 1.0 corresponding to 1:1 with screen space
@@ -64,10 +69,8 @@ class CI_API Triangulator {
 	};
 
   protected:
-	void			allocate();
-
-	int									mAllocated;
-	std::shared_ptr<TESStesselator>		mTess;
+	int mAllocated = 0; //only for debugging purposes - keps track of total amount of allocated memory
+	std::unique_ptr<TessWrapper<2>>			mTess;
 };
 
 } // namespace cinder
