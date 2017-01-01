@@ -40,31 +40,25 @@ public:
 		mAlloc.userData = &allocatedMemCnt;
 		mAlloc.extraVertices = 2560; // realloc not provided, allow 2560 extra vertices XXX: where does this number come from.
 
-		mTess = tessNewTess( &mAlloc );
+		mTess = std::unique_ptr<TESStesselator, void(*)(TESStesselator*)>(tessNewTess(&mAlloc),tessDeleteTess );
 		mTess->outOfMemory = 0;
 		if ( !mTess )
 			throw Triangulator::Exception();
 	}
 
-	~TessWrapper() {
-		if ( mTess ) {
-			tessDeleteTess( mTess );
-		}
-	}
-
-	const vec*	getVertices()		{ return reinterpret_cast<const vec*>(::tessGetVertices( mTess )); }		//XXX Illigal cast?
-	const uint32_t*	getElements()	{ return reinterpret_cast<const uint32_t*>(::tessGetElements( mTess ); }	
-	int			getVertexCount()	{ return ::tessGetVertexCount( mTess ); }
-	int			getElementCount()	{ return ::tessGetElementCount( mTess ); }
+	const vec*	getVertices()		{ return reinterpret_cast<const vec*>(::tessGetVertices( mTess.get() )); }		//XXX Illigal cast?
+	const uint32_t*	getElements()	{ return reinterpret_cast<const uint32_t*>(::tessGetElements( mTess.get() )); }
+	int			getVertexCount()	{ return ::tessGetVertexCount( mTess.get()); }
+	int			getElementCount()	{ return ::tessGetElementCount( mTess.get()); }
 
 	int tesselate( int windingRule, int elementType, int polySize, const vec* normal )
 	{
-		return ::tessTesselate( mTess, windingRule, elementType, polySize, Dims, normal );
+		return ::tessTesselate( mTess.get(), windingRule, elementType, polySize, Dims, reinterpret_cast< const TESSreal*>(normal) );
 	}
 
 	void addContour( const void* vertices, size_t stride, size_t numVertices)
 	{
-		::tessAddContour(mTess, Dims, vertices, (int) stride, (int) numVertices);
+		::tessAddContour(mTess.get(), Dims, vertices, (int) stride, (int) numVertices);
 	}
 
 
@@ -81,7 +75,7 @@ private:
 		free(ptr);
 	}
 
-	TESStesselator* mTess = nullptr;
+	std::unique_ptr<TESStesselator, void(*)(TESStesselator*)> mTess{ nullptr, tessDeleteTess };
 	TESSalloc mAlloc{};
 };
 
