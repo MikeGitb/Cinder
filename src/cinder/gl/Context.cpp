@@ -1695,20 +1695,21 @@ void Context::sanityCheck()
 #endif
 
 	// assert that the (first 8) vertex attribute params are the same
-	auto attribs = boundVao->getLayout().getVertexAttribs();
-	for( int idx = 0; idx < std::min<int>( 8, (int)boundVao->getLayout().getVertexAttribs().size() ); ++idx ) {
+	const auto& attribs = boundVao->getLayout().getVertexAttribs();
+	const auto cnt = std::min<int>(8, (int)attribs.size());
+	for (int idx = 0; idx < cnt; ++idx) {
 		GLint enabled;
-		glGetVertexAttribiv( idx, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled );
-		int matchingIdx = -1;
-		for( auto ciVaoAttribIt = attribs.begin(); ciVaoAttribIt != attribs.end(); ++ciVaoAttribIt ) {
-			if( ciVaoAttribIt->first == idx ) {
-				matchingIdx = (int)(ciVaoAttribIt - attribs.begin());
-			}
-		}
-		if( matchingIdx == -1 ) {
-			assert( enabled == 0 );
+		glGetVertexAttribiv(idx, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+		const auto it = std::find_if(
+			attribs.begin(),
+			attribs.end(),
+			[idx](const auto& e) { return e.first == idx; }
+		);
+		if( it == attribs.end() ) {
+			assert(enabled == 0);
 			continue;
 		}
+		const auto matchingIdx = it - attribs.begin();
 		assert( (enabled != 0) == attribs[idx].second.mEnabled );
 		if( enabled ) {
 			GLint arrayBufferBinding;
