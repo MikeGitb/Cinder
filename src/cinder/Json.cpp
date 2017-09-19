@@ -233,11 +233,9 @@ void JsonTree::init( const string &key, const Json::Value &value, bool setType, 
         }
 		else if( value.isObject() ) {
             mNodeType = NODE_OBJECT;
-            Json::Value::Members members = value.getMemberNames();
-            for( Json::Value::Members::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt ) {
-				string key = *memberIt;
-                pushBack( JsonTree( key, value[ key ] ) );
-            }
+			for (const auto& member : value.getMemberNames()) {
+				pushBack(JsonTree(member, value[member]));
+			}
         }
     }
 	else {

@@ -236,9 +236,9 @@ void ObjLoader::parse( bool includeNormals, bool includeTexCoords )
 			currentGroup->mName = line.substr( line.find( ' ' ) + 1 );
 		}
         else if( tag == "usemtl") { // material
-            string tag;
-            ss >> tag;
-            std::map<std::string, Material>::const_iterator m = mMaterials.find(tag);
+            string tmp;
+            ss >> tmp;
+            auto m = mMaterials.find(tmp);
             if( m != mMaterials.end() ) {
                 currentMaterial = &m->second;
             }
@@ -442,7 +442,7 @@ void ObjLoader::loadGroupNormalsTextures( const Group &group, map<VertexTriple,i
 		for( int v = 0; v < group.mFaces[f].mNumVertices; ++v ) {
 			if( ! forceUnique ) {
 				VertexTriple vTriple = make_tuple( group.mFaces[f].mVertexIndices[v], group.mFaces[f].mTexCoordIndices[v], group.mFaces[f].mNormalIndices[v] );
-				pair<map<VertexTriple,int>::iterator,bool> result = uniqueVerts.insert( make_pair( vTriple, mOutputVertices.size() ) );
+				const auto result = uniqueVerts.emplace( vTriple, static_cast<int>(mOutputVertices.size() ) );
 				if( result.second ) { // we've got a new, unique vertex here, so let's append it
 					mOutputVertices.push_back( mInternalVertices[group.mFaces[f].mVertexIndices[v]] );
 					mOutputNormals.push_back( mInternalNormals[group.mFaces[f].mNormalIndices[v]] );
