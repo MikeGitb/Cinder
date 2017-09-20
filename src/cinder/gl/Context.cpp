@@ -40,7 +40,7 @@
 #if defined( CINDER_MSW )
 	#include <Windows.h>
 #elif defined( CINDER_ANDROID )
-    #include "cinder/android/AndroidDevLog.h" 
+    #include "cinder/android/AndroidDevLog.h"
 #endif
 
 using namespace std;
@@ -79,9 +79,9 @@ Context::Context( const std::shared_ptr<PlatformData> &platformData )
 
 	mRenderbufferBindingStack[GL_RENDERBUFFER] = vector<int>();
 	mRenderbufferBindingStack[GL_RENDERBUFFER].push_back( 0 );
-	 
+
 	mReadFramebufferStack.push_back( 0 );
-	mDrawFramebufferStack.push_back( 0 );	
+	mDrawFramebufferStack.push_back( 0 );
 #else
 	mFramebufferStack.push_back( 0 );
 #endif
@@ -90,27 +90,27 @@ Context::Context( const std::shared_ptr<PlatformData> &platformData )
 	// initial state for depth mask is enabled
 	mBoolStateStack[GL_DEPTH_WRITEMASK] = vector<GLboolean>();
 	mBoolStateStack[GL_DEPTH_WRITEMASK].push_back( GL_TRUE );
-	
+
 	// initial state for depth test is disabled
 	mBoolStateStack[GL_DEPTH_TEST] = vector<GLboolean>();
 	mBoolStateStack[GL_DEPTH_TEST].push_back( GL_FALSE );
-	
+
 	// push default depth function
 	pushDepthFunc();
-	
+
 	mActiveTextureStack.push_back( 0 );
 
 #if ! defined( CINDER_GL_ES )
 	// initial state for polygonMode is GL_FILL
 	mPolygonModeStack.push_back( GL_FILL );
 #endif
-	
+
 	mImmediateMode = gl::VertBatch::create();
-	
+
 	GLint params[4];
 	glGetIntegerv( GL_VIEWPORT, params );
 	mViewportStack.push_back( std::pair<ivec2, ivec2>( ivec2( params[ 0 ], params[ 1 ] ), ivec2( params[ 2 ], params[ 3 ] ) ) );
-    
+
 	glGetIntegerv( GL_SCISSOR_BOX, params );
 	mScissorStack.push_back( std::pair<ivec2, ivec2>( ivec2( params[ 0 ], params[ 1 ] ), ivec2( params[ 2 ], params[ 3 ] ) ) );
 
@@ -123,7 +123,7 @@ Context::Context( const std::shared_ptr<PlatformData> &platformData )
 	mBlendSrcAlphaStack.push_back( queriedInt );
 	glGetIntegerv( GL_BLEND_DST_ALPHA, &queriedInt );
 	mBlendDstAlphaStack.push_back( queriedInt );
-    
+
     mModelMatrixStack.push_back( mat4() );
     mViewMatrixStack.push_back( mat4() );
 	mProjectionMatrixStack.push_back( mat4() );
@@ -131,7 +131,7 @@ Context::Context( const std::shared_ptr<PlatformData> &platformData )
 
 	// set default shader
 	pushGlslProg( getStockShader( ShaderDef().color() ) );
-	
+
 	// enable unpremultiplied alpha blending by default
 	pushBoolState( GL_BLEND, GL_TRUE );
 	pushBlendFuncSeparate( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -220,7 +220,7 @@ void Context::reflectCurrent( Context *context )
 	pthread_setspecific( sThreadSpecificCurrentContextKey, context );
 #else
 	sThreadSpecificCurrentContext = context;
-#endif	
+#endif
 }
 
 //////////////////////////////////////////////////////////////////
@@ -232,7 +232,7 @@ void Context::bindVao( Vao *vao )
 		if( prevVao )
 			prevVao->unbindImpl( this );
 		if( vao )
-			vao->bindImpl( this );	
+			vao->bindImpl( this );
 	}
 }
 
@@ -298,7 +298,7 @@ void Context::vaoDeleted( const Vao *vao )
 	// remove from object tracking
 	if( mObjectTrackingEnabled )
 		mLiveVaos.erase( vao );
-		
+
 	// if this was the currently bound VAO, mark the top of the stack as null
 	if( ! mVaoStack.empty() && mVaoStack.back() && ( mVaoStack.back()->getId() == vao->getId() ) )
 		mVaoStack.back() = nullptr;
@@ -345,7 +345,7 @@ std::pair<ivec2, ivec2> Context::getViewport()
 
 	return mViewportStack.back();
 }
-    
+
 //////////////////////////////////////////////////////////////////
 // Scissor Test
 void Context::setScissor( const std::pair<ivec2, ivec2> &scissor )
@@ -379,7 +379,7 @@ std::pair<ivec2, ivec2> Context::getScissor()
 {
 	if( mScissorStack.empty() ) {
 		GLint params[4];
-		glGetIntegerv( GL_SCISSOR_BOX, params ); 
+		glGetIntegerv( GL_SCISSOR_BOX, params );
 		// push twice in anticipation of later pop
 		mScissorStack.push_back( std::pair<ivec2, ivec2>( ivec2( params[ 0 ], params[ 1 ] ), ivec2( params[ 2 ], params[ 3 ] ) ) );
 		mScissorStack.push_back( std::pair<ivec2, ivec2>( ivec2( params[ 0 ], params[ 1 ] ), ivec2( params[ 2 ], params[ 3 ] ) ) );
@@ -501,7 +501,7 @@ GLenum Context::getLogicOp()
 		mLogicOpStack.push_back( queriedInt ); // push twice
 		mLogicOpStack.push_back( queriedInt );
 	}
-	
+
 	return mLogicOpStack.back();
 }
 #endif // ! defined( CINDER_GL_ES )
@@ -566,11 +566,11 @@ GLuint Context::getBufferBinding( GLenum target )
 		}
 		else
 			return 0; // warning?
-		
+
 		if( mBufferBindingStack[target].empty() ) { // bad - empty stack; push twice to allow for the pop later and not lead to an empty stack
 			mBufferBindingStack[target] = vector<GLint>();
 			mBufferBindingStack[target].push_back( queriedInt );
-			mBufferBindingStack[target].push_back( queriedInt );			
+			mBufferBindingStack[target].push_back( queriedInt );
 		}
 		else
 			mBufferBindingStack[target].back() = queriedInt;
@@ -631,7 +631,7 @@ void Context::invalidateBufferBindingCache( GLenum target )
 	else if( ! mBufferBindingStack[target].empty() )
 		mBufferBindingStack[target].back() = -1;
 }
-	
+
 void Context::restoreInvalidatedBufferBinding( GLenum target )
 {
 	if( mBufferBindingStack.find(target) != mBufferBindingStack.end() ) {
@@ -677,16 +677,16 @@ GLuint Context::getRenderbufferBinding( GLenum target )
 {
 	// currently only GL_RENDERBUFFER is legal in GL
 	CI_ASSERT( target == GL_RENDERBUFFER );
-	
+
 	auto cachedIt = mRenderbufferBindingStack.find( target );
 	if( (cachedIt == mRenderbufferBindingStack.end()) || ( cachedIt->second.empty() ) || ( cachedIt->second.back() == -1 ) ) {
 		GLint queriedInt = 0;
 		glGetIntegerv( GL_RENDERBUFFER_BINDING, &queriedInt );
-		
+
 		if( mRenderbufferBindingStack[target].empty() ) { // bad - empty stack; push twice to allow for the pop later and not lead to an empty stack
 			mRenderbufferBindingStack[target] = vector<GLint>();
 			mRenderbufferBindingStack[target].push_back( queriedInt );
-			mRenderbufferBindingStack[target].push_back( queriedInt );			
+			mRenderbufferBindingStack[target].push_back( queriedInt );
 		}
 		else
 			mRenderbufferBindingStack[target].back() = queriedInt;
@@ -741,7 +741,7 @@ void Context::bindTransformFeedbackObj( const TransformFeedbackObjRef &feedbackO
 			mCachedTransformFeedbackObj->unbindImpl( this );
 		if( feedbackObj )
 			feedbackObj->bindImpl( this );
-		
+
 		mCachedTransformFeedbackObj = feedbackObj;
 	}
 }
@@ -750,7 +750,7 @@ TransformFeedbackObjRef Context::transformFeedbackObjGet()
 {
 	return mCachedTransformFeedbackObj;
 }
-	
+
 void Context::beginTransformFeedback( GLenum primitiveMode )
 {
 	if( mCachedTransformFeedbackObj ) {
@@ -828,7 +828,7 @@ void Context::popGlslProg( bool forceRestore )
 			}
 		}
 		else
-			CI_LOG_E( "Empty GlslProg stack" );			
+			CI_LOG_E( "Empty GlslProg stack" );
 	}
 	else
 		CI_LOG_E( "GlslProg stack underflow" );
@@ -850,7 +850,7 @@ const GlslProg* Context::getGlslProg()
 {
 	if( mGlslProgStack.empty() )
 		mGlslProgStack.push_back( nullptr );
-	
+
 	return mGlslProgStack.back();
 }
 
@@ -908,7 +908,7 @@ void Context::pushTextureBinding( GLenum target, uint8_t textureUnit )
 		}
 		mTextureBindingStack[textureUnit][target].push_back( queriedInt );
 	}
-	
+
 	mTextureBindingStack[textureUnit][target].push_back( mTextureBindingStack[textureUnit][target].back() );
 }
 
@@ -953,11 +953,11 @@ GLuint Context::getTextureBinding( GLenum target, uint8_t textureUnit )
 		}
 		else
 			return 0; // warning?
-		
+
 		if( mTextureBindingStack[textureUnit][target].empty() ) { // bad - empty stack; push twice to allow for the pop later and not lead to an empty stack
 			mTextureBindingStack[textureUnit][target] = vector<GLint>();
 			mTextureBindingStack[textureUnit][target].push_back( queriedInt );
-			mTextureBindingStack[textureUnit][target].push_back( queriedInt );			
+			mTextureBindingStack[textureUnit][target].push_back( queriedInt );
 		}
 		else
 			mTextureBindingStack[textureUnit][target].back() = queriedInt;
@@ -1064,7 +1064,7 @@ void Context::popSamplerBinding( uint8_t textureUnit, bool forceRestore )
 	if( mSamplerBindingStack[textureUnit].empty() )
 		CI_LOG_E( "Stack underflow popping sampler binding on unit " << textureUnit );
 	else if( (mSamplerBindingStack[textureUnit].back() != prevSampler) || forceRestore )
-		glBindSampler( textureUnit, mSamplerBindingStack[textureUnit].back() ); 
+		glBindSampler( textureUnit, mSamplerBindingStack[textureUnit].back() );
 }
 
 GLuint Context::getSamplerBinding( uint8_t textureUnit )
@@ -1077,7 +1077,7 @@ GLuint Context::getSamplerBinding( uint8_t textureUnit )
 		ScopedActiveTexture actScp( textureUnit );
 		glGetIntegerv( GL_SAMPLER_BINDING, &queriedInt );
 		// push twice to allow for a pop later to not lead to an empty stack
-		mSamplerBindingStack[textureUnit].push_back( (GLuint)queriedInt ); 
+		mSamplerBindingStack[textureUnit].push_back( (GLuint)queriedInt );
 		mSamplerBindingStack[textureUnit].push_back( (GLuint)queriedInt );
 	}
 
@@ -1095,7 +1095,7 @@ void Context::bindFramebuffer( GLenum target, GLuint framebuffer )
 			glBindFramebuffer( target, framebuffer );
 	}
 	else {
-		//throw gl::Exception( "Illegal target for Context::bindFramebuffer" );	
+		//throw gl::Exception( "Illegal target for Context::bindFramebuffer" );
 	}
 #else
 	if( target == GL_FRAMEBUFFER ) {
@@ -1110,10 +1110,10 @@ void Context::bindFramebuffer( GLenum target, GLuint framebuffer )
 	}
 	else if( target == GL_DRAW_FRAMEBUFFER ) {
 		if( setStackState<GLint>( mDrawFramebufferStack, framebuffer ) )
-			glBindFramebuffer( target, framebuffer );		
+			glBindFramebuffer( target, framebuffer );
 	}
 	else {
-		//throw gl::Exception( "Illegal target for Context::bindFramebuffer" );	
+		//throw gl::Exception( "Illegal target for Context::bindFramebuffer" );
 	}
 #endif
 }
@@ -1132,7 +1132,7 @@ void Context::unbindFramebuffer()
 void Context::pushFramebuffer( const FboRef &fbo, GLenum target )
 {
 	pushFramebuffer( target, fbo->getId() );
-	fbo->markAsDirty();	
+	fbo->markAsDirty();
 }
 
 void Context::pushFramebuffer( GLenum target, GLuint framebuffer )
@@ -1147,7 +1147,7 @@ void Context::pushFramebuffer( GLenum target, GLuint framebuffer )
 	}
 	if( target == GL_FRAMEBUFFER || target == GL_DRAW_FRAMEBUFFER ) {
 		if( pushStackState<GLint>( mDrawFramebufferStack, framebuffer ) )
-			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, framebuffer );	
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, framebuffer );
 	}
 #endif
 }
@@ -1193,9 +1193,9 @@ GLuint Context::getFramebuffer( GLenum target )
 		GLint queriedInt;
 		glGetIntegerv( GL_FRAMEBUFFER_BINDING, &queriedInt );
 		mFramebufferStack.push_back( queriedInt );
-		mFramebufferStack.push_back( queriedInt );		
+		mFramebufferStack.push_back( queriedInt );
 	}
-	
+
 	return mFramebufferStack.back();
 #else
 	if( target == GL_READ_FRAMEBUFFER ) {
@@ -1219,7 +1219,7 @@ GLuint Context::getFramebuffer( GLenum target )
 	}
 	else {
 		//throw gl::Exception( "Illegal target for getFramebufferBinding" );
-		return 0; // 
+		return 0; //
 	}
 #endif
 }
@@ -1256,7 +1256,7 @@ void Context::setBoolState( GLenum cap, GLboolean value )
 			glEnable( cap );
 		else
 			glDisable( cap );
-	}	
+	}
 }
 
 void Context::setBoolState( GLenum cap, GLboolean value, const std::function<void(GLboolean)> &setter )
@@ -1291,7 +1291,7 @@ void Context::pushBoolState( GLenum cap, GLboolean value )
 			glEnable( cap );
 		else
 			glDisable( cap );
-	}	
+	}
 }
 
 void Context::pushBoolState( GLenum cap )
@@ -1410,7 +1410,7 @@ void Context::getBlendFuncSeparate( GLenum *resultSrcRGB, GLenum *resultDstRGB, 
 		glGetIntegerv( GL_BLEND_DST_ALPHA, &queriedInt );
 		mBlendDstAlphaStack.push_back( queriedInt ); mBlendDstAlphaStack.push_back( queriedInt );
 	}
-	
+
 	*resultSrcRGB = mBlendSrcRgbStack.back();
 	*resultDstRGB = mBlendDstRgbStack.back();
 	*resultSrcAlpha = mBlendSrcAlphaStack.back();
@@ -1504,7 +1504,7 @@ void Context::depthFunc( GLenum func )
 {
 	if( func != GL_NEVER && func != GL_LESS && func != GL_EQUAL && func != GL_LEQUAL && func != GL_GREATER && func != GL_NOTEQUAL && func != GL_GEQUAL && func != GL_ALWAYS )
 		CI_LOG_E( "Wrong enum for the depth buffer comparison function" );
-	
+
 	if( setStackState( mDepthFuncStack, func ) ) {
 		glDepthFunc( func );
 	}
@@ -1514,7 +1514,7 @@ void Context::pushDepthFunc( GLenum func )
 {
 	if( func != GL_NEVER && func != GL_LESS && func != GL_EQUAL && func != GL_LEQUAL && func != GL_GREATER && func != GL_NOTEQUAL && func != GL_GEQUAL && func != GL_ALWAYS )
 		CI_LOG_E( "Wrong enum for the depth buffer comparison function" );
-	
+
 	if( pushStackState( mDepthFuncStack, func ) ) {
 		glDepthFunc( func );
 	}
@@ -1744,8 +1744,8 @@ void Context::sanityCheck()
 void Context::printState( std::ostream &os ) const
 {
 	GLint queriedInt;
-	
-	glGetIntegerv( GL_ARRAY_BUFFER_BINDING, &queriedInt );	
+
+	glGetIntegerv( GL_ARRAY_BUFFER_BINDING, &queriedInt );
 	os << "{ARRAY_BUFFER:" << queriedInt << ", ";
 
 	glGetIntegerv( GL_ELEMENT_ARRAY_BUFFER_BINDING, &queriedInt );
@@ -1923,7 +1923,7 @@ GlslProgRef& Context::getStockShader( const ShaderDef &shaderDef )
 		auto result = gl::env()->buildShader( shaderDef );
 		mStockShaders[shaderDef] = result;
 		return mStockShaders[shaderDef];
-#endif		
+#endif
 	}
 	else
 		return existing->second;
@@ -2119,7 +2119,7 @@ VboRef Context::getDefaultElementVbo( size_t requiredSize )
 	else {
 		mDefaultElementVbo->ensureMinimumSize( std::max<size_t>( 1, requiredSize ) );
 	}
-	
+
 	return mDefaultElementVbo;
 }
 
