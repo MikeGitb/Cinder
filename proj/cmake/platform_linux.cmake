@@ -167,7 +167,8 @@ endif()
 if( CINDER_BOOST_USE_SYSTEM )
 	find_package( Boost 1.54 REQUIRED COMPONENTS system filesystem )
 	list( APPEND CINDER_LIBS_DEPENDS ${Boost_LIBRARIES} )
-	list( APPEND CINDER_INCLUDE_SYSTEM_PRIVATE ${Boost_INCLUDE_DIRS} )
+	# insert at the beginning to prevent accidential use of boost headers from submodule
+	list( INSERT CINDER_INCLUDE_SYSTEM_PRIVATE 0 ${Boost_INCLUDE_DIRS} )
 else()
 	set( LINUX_LIB_DIRECTORY "${CINDER_PATH}/lib/linux/${CINDER_ARCH}/" )
 	list( APPEND CINDER_LIBS_DEPENDS
