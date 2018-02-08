@@ -14,6 +14,7 @@ project( cinder )
 
 option( CINDER_BUILD_TESTS "Build unit tests." OFF )
 option( CINDER_BUILD_ALL_SAMPLES "Build all samples." OFF )
+option( CINDER_BOOST_USE_SYSTEM "Use boost library provided by system." ON)
 set( CINDER_BUILD_SAMPLE "" CACHE STRING "Build a specific sample by specifying its path relative to the samples directory (ex. '_opengl/Cube')." )
 
 set( CINDER_PATH      "${CMAKE_CURRENT_SOURCE_DIR}" )
