@@ -16,17 +16,24 @@ add_library(
     ${CINDER_SRC_FILES}
 )
 
-target_include_directories( cinder BEFORE INTERFACE ${CINDER_INCLUDE_USER_INTERFACE} )
-target_include_directories( cinder SYSTEM BEFORE INTERFACE ${CINDER_INCLUDE_SYSTEM_INTERFACE} )
+target_include_directories( cinder INTERFACE ${CINDER_INCLUDE_USER_INTERFACE} )
+target_include_directories( cinder INTERFACE ${CINDER_INCLUDE_SYSTEM_INTERFACE} )
 
-target_include_directories( cinder BEFORE PRIVATE ${CINDER_INCLUDE_USER_PRIVATE} )
-target_include_directories( cinder SYSTEM BEFORE PRIVATE ${CINDER_INCLUDE_SYSTEM_PRIVATE} )
+target_include_directories( cinder PRIVATE ${CINDER_INCLUDE_USER_PRIVATE} )
+target_include_directories( cinder PRIVATE ${CINDER_INCLUDE_SYSTEM_PRIVATE} )
 
 target_link_libraries( cinder PUBLIC ${CINDER_LIBS_DEPENDS}  )
 
 target_compile_definitions( cinder PUBLIC ${CINDER_DEFINES} )
 
-# Visual Studio and Xcode generators adds a ${CMAKE_BUILD_TYPE} to the ARCHIVE 
+if (${CINDER_BOOST_USE_SYSTEM})
+	find_package(Boost REQUIRED)
+	target_link_libraries(cinder PUBLIC  Boost::boost)
+	message("Boost include directories: ${Boost_INCLUDE_DIRS}")
+	target_include_directories(cinder SYSTEM BEFORE PUBLIC ${Boost_INCLUDE_DIRS})
+endif()
+
+# Visual Studio and Xcode generators adds a ${CMAKE_BUILD_TYPE} to the ARCHIVE
 # and LIBRARY directories. Override the directories so, ${CMAKE_BUILD_TYPE} doesn't double up.
 if( CINDER_MSW )
 	set( PLATFORM_TOOLSET "$(PlatformToolset)" )
