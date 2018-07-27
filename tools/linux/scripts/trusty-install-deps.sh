@@ -2,6 +2,8 @@
 set -e
 
 # Packages
+sudo apt-get update
+
 sudo apt-get -y install \
   libxcursor-dev \
   libxrandr-dev \
